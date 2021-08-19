@@ -40,6 +40,14 @@ function operaterHandler(op) {
         hasCalculated = false;
     }
 
+    if(operator && secondNumExists()) {
+        operate();
+        operator = op;
+        secondNum = "";
+        updateScreen();
+        return;
+    }
+
     operator = op;
     secondNum = "";
     updateScreen();
@@ -72,6 +80,9 @@ function operate() {
     hasCalculated = true;
     ans = shortenNumber(ans);
     updateValues(ans);
+    if (!isFinite(ans)) {
+        firstNum = "0";
+    }
 }
 
 function updateValues(ans) {
@@ -88,12 +99,16 @@ function shortenNumber(ans) {
     checkFloat(ans);
 
     let ansString = "" + ans;
-    if (ansString.length > 10) {
+    if (ansString.length > 12) {
         if (firstIsFloat) {
-            ans = parseInt(ans * Math.pow(10, 3));
-            ans /= Math.pow(10, 3);
-        } else if (ansString.length > 12) {
-            ans = ans.toExponential(3);
+            ans = parseInt(ans * Math.pow(10, 6));
+            ans /= Math.pow(10, 6);
+            if ((ansString.substring(0, ansString.indexOf("."))).length > 8) {
+                ans = ans.toExponential(6);
+            }
+        }
+        else {
+            ans = ans.toExponential(6);
         }
     }
 
@@ -103,6 +118,8 @@ function shortenNumber(ans) {
 function checkFloat(ans) {
     if (ans % 1 !== 0) {
         firstIsFloat = true;
+    } else {
+        firstIsFloat = false;
     }
 }
 
@@ -182,28 +199,40 @@ function addPointToFirst() {
     }
 }
 
+function showMaxReached() {
+    lastCalc.textContent = "Max digit length reached";
+    setTimeout(() => {
+        lastCalc.textContent = "";
+    }, 2000);
+}
+
+function checkCalculated() {
+    if (hasCalculated) {
+        lastCalc.textContent = "";
+        hasCalculated = false;
+    }
+}
+
 // EVENT LISTENERS
 
 allNumKeys.forEach(numKey => {
     numKey.addEventListener("click", (e) => {
         if (operator === null || operator === undefined) {
             if (firstNum.length > 12) {
+                showMaxReached();
                 return;
             }
             addToFirst(e);
         } else {
             if (secondNum && secondNum.length > 12) {
+                lastCalc.textContent = "Max digit length reached";
+                showMaxReached();
                 return;
             }
             addToSecond(e);
         }
 
-        // user has modified answer of previous calculation
-        if (hasCalculated) {
-            lastCalc.textContent = "";
-            hasCalculated = false;
-        }
-
+        checkCalculated();
         updateScreen();
     });
 });
@@ -222,7 +251,7 @@ backspace.addEventListener("click", (e) => {
     if (secondNumExists()) {
         secondNumBackspace();
     } else if (secondIsNegative) {
-        currCalc.textContent = 
+        currCalc.textContent =
             currCalc.textContent.substring(0, currCalc.textContent.length - 1);
         secondNum = "";
         secondIsNegative = false;
@@ -256,7 +285,7 @@ plus.addEventListener("click", (e) => {
 });
 
 minus.addEventListener("click", (e) => {
-    if (firstNum === "0" || operator) {
+    if ((firstNum === "0" && !operator) || (operator && !secondNumExists())) {
         negativeHandler();
     } else {
         operaterHandler("-");
@@ -290,9 +319,6 @@ point.addEventListener("click", (e) => {
     } else if (secondNumExists() && !secondIsFloat) {
         secondNum += ".";
         secondIsFloat = true;
-    } else {
-        firstNum += "0.";
-        firstIsFloat = true;
     }
 
     updateScreen();
