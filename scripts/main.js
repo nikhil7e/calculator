@@ -40,7 +40,7 @@ function operaterHandler(op) {
         hasCalculated = false;
     }
 
-    if(operator && secondNumExists()) {
+    if (operator && secondNumExists()) {
         operate();
         operator = op;
         secondNum = "";
@@ -94,6 +94,16 @@ function updateValues(ans) {
     currCalc.textContent = ans;
 }
 
+function shortenFirstFloat(ans, ansString) {
+    ans = parseInt(ans * Math.pow(10, 6));
+    ans /= Math.pow(10, 6);
+    if ((ansString.substring(0, ansString.indexOf("."))).length > 8) {
+        ans = ans.toExponential(6);
+    }
+
+    return ans
+}
+
 
 function shortenNumber(ans) {
     checkFloat(ans);
@@ -101,11 +111,7 @@ function shortenNumber(ans) {
     let ansString = "" + ans;
     if (ansString.length > 12) {
         if (firstIsFloat) {
-            ans = parseInt(ans * Math.pow(10, 6));
-            ans /= Math.pow(10, 6);
-            if ((ansString.substring(0, ansString.indexOf("."))).length > 8) {
-                ans = ans.toExponential(6);
-            }
+            ans = shortenFirstFloat(ans, ansString);
         }
         else {
             ans = ans.toExponential(6);
@@ -213,11 +219,23 @@ function checkCalculated() {
     }
 }
 
+function negativeHandler() {
+    if (firstNum === "0") {
+        firstNum = "-";
+        firstIsNegative = true;
+    } else {
+        secondNum = "-";
+        secondIsNegative = true;
+    }
+
+    updateScreen();
+}
+
 // EVENT LISTENERS
 
 allNumKeys.forEach(numKey => {
     numKey.addEventListener("click", (e) => {
-        if (operator === null || operator === undefined) {
+        if (!operator) {
             if (firstNum.length > 12) {
                 showMaxReached();
                 return;
@@ -243,6 +261,8 @@ clear.addEventListener("click", (e) => {
     secondNum = undefined;
     firstIsFloat = false;
     secondIsFloat = false;
+    firstIsNegative = false;
+    secondIsNegative = false;
     lastCalc.textContent = "";
     updateScreen();
 });
@@ -292,17 +312,6 @@ minus.addEventListener("click", (e) => {
     }
 });
 
-function negativeHandler() {
-    if (firstNum === "0") {
-        firstNum = "-";
-        firstIsNegative = true;
-    } else {
-        secondNum = "-";
-        secondIsNegative = true;
-    }
-
-    updateScreen();
-}
 
 equals.addEventListener("click", (e) => {
     operate();
