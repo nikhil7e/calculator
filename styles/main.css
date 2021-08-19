@@ -31,9 +31,25 @@ body {
     height: 15vh;
 }
 
-.last-calculation, .current-calculation {
-    margin: 10px 20px 10px 20px;
+.last-calculation {
+    margin: 5px 20px 0px 20px;
+    font-size: 20px;
+}
+
+.current-calculation {
+    margin: 5px 20px 0px 20px;
     font-size: 30px;
+    height: auto;
+    animation: insertion-point 1s cubic-bezier(0,0,0,1) infinite;
+}
+
+@keyframes insertion-point {
+    from {
+        border-right: 0.5px solid black;
+    }
+    to {
+        border-right: 0.5px solid transparent;
+    }
 }
 
 button {
