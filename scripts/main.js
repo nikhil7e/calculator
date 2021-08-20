@@ -208,7 +208,9 @@ function addPointToFirst() {
 function showMaxReached() {
     lastCalc.textContent = "Max digit length reached";
     setTimeout(() => {
-        lastCalc.textContent = "";
+        if(lastCalc.textContent === "Max digit length reached") {
+            lastCalc.textContent = "";
+        }
     }, 2000);
 }
 
